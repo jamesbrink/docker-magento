@@ -8,7 +8,7 @@ LABEL decription="Magento Server"
 LABEL version="2.0.18"
 
 # Build ARGs
-ARG magento_version=2.2.3
+ARG magento_version=2.0.18
 ARG sass_enabled=false
 
 # Install deps for Magento, and setup user and permisions.
@@ -66,8 +66,15 @@ RUN echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /
 
 USER magento
 
-# Install Magento & Clear composer cache
+# Install Magento
 RUN composer create-project magento/community-edition:${magento_version} /var/www/html \
+    && composer clear-cache
+
+# Install Magerun
+ARG magerun_version=2.1.0
+RUN cd /var/www/html \
+    && composer require --no-update n98/magerun2:${magerun_version} \
+    && composer update \
     && composer clear-cache
 
 # If Enabled on build - Install blank-sass theme and frontools
@@ -75,6 +82,7 @@ RUN if [ "${sass_enabled}" != "true" ] ; then exit 0 ;fi \
     && cd /var/www/html \
     && composer require snowdog/theme-blank-sass \
     && composer require snowdog/frontools \
+    && composer clear-cache \
     && cd vendor/snowdog/frontools \
     && npm install \
     && cp config/themes.json.sample config/themes.json \
@@ -98,7 +106,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MARIADB_PORT_NUMBER="3306" \
     MARIADB_ROOT_PASSWORD="password" \
     MARIADB_ROOT_USER="root" \
-    PATH="/var/www/html/bin:$PATH"
+    PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
 
 # Set ServerName in apache config.
 RUN echo "ServerName $MAGENTO_HOST" >> /etc/apache2/apache2.conf
