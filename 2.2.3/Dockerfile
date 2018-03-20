@@ -86,7 +86,8 @@ RUN if [ "${sass_enabled}" != "true" ] ; then exit 0 ;fi \
     && composer clear-cache \
     && cd vendor/snowdog/frontools \
     && npm install \
-    && npm cache clean --force
+    && npm cache clean --force \
+    && npx gulp setup
 
 # Set all environment variables.
 ENV APACHE_HTTPS_PORT_NUMBER="443" \
@@ -110,7 +111,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
 
 # Copy assets into the container.
-COPY ./docker-assets/ /
+COPY --chown=magento:magento ./docker-assets/ /
 
 # Enable new apache configuration.
 RUN a2dissite 000-default && a2ensite 000-default
