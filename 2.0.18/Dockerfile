@@ -86,8 +86,7 @@ RUN if [ "${sass_enabled}" != "true" ] ; then exit 0 ;fi \
     && composer clear-cache \
     && cd vendor/snowdog/frontools \
     && npm install \
-    && cp config/themes.json.sample config/themes.json \
-    && npx gulp styles --prod
+    && npm cache clean --force
 
 # Set all environment variables.
 ENV APACHE_HTTPS_PORT_NUMBER="443" \

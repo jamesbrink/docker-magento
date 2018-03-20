@@ -51,6 +51,12 @@ fi
 # Run the cron job every 1 minute
 while :;do magento cron:run | grep -v "Ran jobs by schedule";sleep 60; done &
 
+# Compile SASS themes.
+echo "Compiling SASS"
+cd /var/www/html/vendor/snowdog/frontools
+npx gulp styles
+cd /var/www/html/
+
 # Start apache
 apache2-foreground &
 pid="$!"

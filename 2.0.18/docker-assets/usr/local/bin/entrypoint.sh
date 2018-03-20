@@ -40,15 +40,22 @@ else
 fi
 
 # Toggle mod_pagespeed.
-
 if [[ "$MOD_PAGESPEED_ENABLED" == "true" ]]; then
+  echo "Enabling mod_pagespeed"
   a2enmod pagespeed
 else
+  echo "Disabling mod_pagespeed"
   a2dismod pagespeed
 fi
 
 # Run the cron job every 1 minute
 while :;do magento cron:run | grep -v "Ran jobs by schedule";sleep 60; done &
+
+# Compile SASS themes.
+echo "Compiling SASS"
+cd /var/www/html/vendor/snowdog/frontools
+npx gulp styles
+cd /var/www/html/
 
 # Start apache
 apache2-foreground &
