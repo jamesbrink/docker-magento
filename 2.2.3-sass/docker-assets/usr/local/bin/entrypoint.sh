@@ -23,7 +23,7 @@ echo "Database User: $MAGENTO_DATABASE_USER"
 echo "Database Password: $MAGENTO_DATABASE_PASSWORD"
 
 # Install Magento on first run.
-if [ ! -e /var/www/html/app/etc/env.php ]; then
+if [[ ! -e /var/www/html/app/etc/env.php ]]; then
   echo "========Installing Magento========"
   until install_magento
   do
@@ -39,8 +39,13 @@ else
   echo "Magento is already installed."
 fi
 
-# Enable pagespeed.
-a2enmod pagespeed
+# Toggle mod_pagespeed.
+
+if [[ "$MOD_PAGESPEED_ENABLED" == "true" ]]; then
+  a2enmod pagespeed
+else
+  a2dismod pagespeed
+fi
 
 # Run the cron job every 1 minute
 while :;do magento cron:run | grep -v "Ran jobs by schedule";sleep 60; done &

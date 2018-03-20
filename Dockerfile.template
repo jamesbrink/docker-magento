@@ -107,6 +107,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MARIADB_PORT_NUMBER="3306" \
     MARIADB_ROOT_PASSWORD="password" \
     MARIADB_ROOT_USER="root" \
+    MOD_PAGESPEED_ENABLED="true" \
     PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
 
 # Copy assets into the container.
