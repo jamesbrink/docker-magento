@@ -48,6 +48,15 @@ else
   a2dismod pagespeed
 fi
 
+# Install Magento sample data.
+if [[ "$ENABLE_SAMPLE_DATA" == "true" ]]; then
+  echo "Enabling Magento sample data."
+  php -f /var/www/magento2-sample-data/dev/tools/build-sample-data.php -- --ce-source=/var/www/html/
+else
+  echo "Disabling Magento sample data."
+  php -f /var/www/magento2-sample-data/dev/tools/build-sample-data.php – --command=unlink --ce-source=/var/www/html/
+fi
+
 # Run the cron job every 1 minute
 while :;do magento cron:run | grep -v "Ran jobs by schedule";sleep 60; done &
 

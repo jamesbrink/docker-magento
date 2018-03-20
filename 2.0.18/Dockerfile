@@ -23,6 +23,7 @@ RUN apt-get update \
         unzip \
         wget \
         zip \
+        git \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install -j$(nproc) iconv mcrypt intl xsl zip pdo_mysql soap \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
@@ -69,7 +70,12 @@ USER magento
 
 # Install Magento
 RUN composer create-project magento/community-edition:${magento_version} /var/www/html \
-    && composer clear-cache
+    && composer clear-cache \
+    && cd /var/www/ \
+    && git clone https://github.com/magento/magento2-sample-data.git \
+    && cd magento2-sample-data \
+    && git checkout ${magento_version} \
+    && rm -rf .git
 
 # Install Magerun
 ARG magerun_version=2.1.0
@@ -108,6 +114,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MARIADB_ROOT_PASSWORD="password" \
     MARIADB_ROOT_USER="root" \
     MOD_PAGESPEED_ENABLED="true" \
+    ENABLE_SAMPLE_DATA="false" \
     PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
 
 # Copy assets into the container.
