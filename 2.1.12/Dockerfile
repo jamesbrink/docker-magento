@@ -41,6 +41,7 @@ RUN apt-get update \
     && chown -R magento:magento /var/run/apache2 \
     && chown -R magento:magento /var/lock/apache2 \
     && chown -R magento:magento /etc/apache2 \
+    && chown -R magento:magento /var/lib/apache2 \
     && a2enmod rewrite
 
 # Install mod_pagespeed
@@ -108,11 +109,11 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MARIADB_ROOT_USER="root" \
     PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
 
-# Set ServerName in apache config.
-RUN echo "ServerName $MAGENTO_HOST" >> /etc/apache2/apache2.conf
-
-# Copy our files into the container.
+# Copy assets into the container.
 COPY ./docker-assets/ /
+
+# Enable new apache configuration.
+RUN a2dissite 000-default && a2ensite 000-default
 
 # Expose http and https ports.
 EXPOSE 80 443

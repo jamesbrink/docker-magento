@@ -21,26 +21,35 @@ echo "Magento Admin URI: $MAGENTO_ADMINURI"
 echo "Database Host: $MARIADB_HOST"
 echo "Database User: $MAGENTO_DATABASE_USER"
 echo "Database Password: $MAGENTO_DATABASE_PASSWORD"
-echo "========Installing Magento========"
-# Install Magento
-until install_magento
-do
-  # TODO replace this, this is a very naive approach.
-  echo "Waiting for MariaDB"
-  sleep 10
-done
-# Secure permisions
-chmod 500 /var/www/html/app/etc
-# Set Magento mode
-magento deploy:mode:set $MAGENTO_MODE
+
+# Install Magento on first run.
+if [ ! -e /var/www/html/app/etc/env.php ]; then
+  echo "========Installing Magento========"
+  until install_magento
+  do
+    # TODO replace this, this is a very naive approach.
+    echo "Waiting for MariaDB"
+    sleep 10
+  done
+  # Secure permisions
+  chmod 500 /var/www/html/app/etc
+  # Set Magento mode
+  magento deploy:mode:set $MAGENTO_MODE
+else
+  echo "Magento is already installed."
+fi
+
 # Enable pagespeed.
 a2enmod pagespeed
+
 # Run the cron job every 1 minute
 while :;do magento cron:run | grep -v "Ran jobs by schedule";sleep 60; done &
+
 # Start apache
 apache2-foreground &
 pid="$!"
 trap "echo 'Stopping Magento - pid: $pid'; kill -SIGTERM $pid" SIGINT SIGTERM
+
 # Wait for process to end.
 while kill -0 $pid > /dev/null 2>&1; do
     wait
