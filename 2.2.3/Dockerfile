@@ -111,7 +111,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
 
 # Copy assets into the container.
-COPY --chown=magento:magento ./docker-assets/ /
+COPY ./docker-assets/ /
 
 # Enable new apache configuration.
 RUN a2dissite 000-default && a2ensite 000-default
