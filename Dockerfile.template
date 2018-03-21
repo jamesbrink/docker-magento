@@ -57,11 +57,15 @@ RUN cd /var/tmp \
     && chown -R magento:magento /var/log/pagespeed
 
 # If Enabled on build - Install nodejs
-RUN if [ "${sass_enabled}" != "true" ] ; then exit 0 ;fi \
-    && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-    && apt-get update \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+RUN if [ "${sass_enabled}" = "true" ]; then \
+      echo "SASS Enabled, installing nodejs." \
+      && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+      && apt-get update \
+      && apt-get install -y nodejs \
+      && rm -rf /var/lib/apt/lists/*; \
+    else \
+      echo "SASS Disabled, not installing nodejs."; \
+    fi
 
 # Setup php.ini
 RUN echo -e "date.timezone=America/Chicago\\nmemory_limit=2G\\nasp_tags=off\\n" > /usr/local/etc/php/php.ini
@@ -85,15 +89,19 @@ RUN cd /var/www/html \
     && composer clear-cache
 
 # If Enabled on build - Install blank-sass theme and frontools
-RUN if [ "${sass_enabled}" != "true" ] ; then exit 0 ;fi \
-    && cd /var/www/html \
-    && composer require snowdog/theme-blank-sass \
-    && composer require snowdog/frontools \
-    && composer clear-cache \
-    && cd vendor/snowdog/frontools \
-    && npm install \
-    && npm cache clean --force \
-    && npx gulp setup
+RUN if [ "${sass_enabled}" = "true" ] ; then \
+      echo "SASS Enabled, installing snowdog theme and tools." \
+      && cd /var/www/html \
+      && composer require snowdog/theme-blank-sass \
+      && composer require snowdog/frontools \
+      && composer clear-cache \
+      && cd vendor/snowdog/frontools \
+      && npm install \
+      && npm cache clean --force \
+      && npx gulp setup; \
+    else \
+      echo "SASS Disabled, not installing snowdog theme and tools."; \
+    fi
 
 # Set all environment variables.
 ENV APACHE_HTTPS_PORT_NUMBER="443" \
@@ -115,7 +123,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MARIADB_ROOT_USER="root" \
     MOD_PAGESPEED_ENABLED="true" \
     ENABLE_SAMPLE_DATA="false" \
-    PATH="/var/www/html/bin:/var/www/html/vendor/bin/:$PATH"
+    PATH="/var/www/html/bin:/var/www/html/vendor/bin/:/var/www/html/vendor/n98/magerun2/bin:$PATH"
 
 # Copy assets into the container.
 COPY ./docker-assets/ /
