@@ -33,6 +33,22 @@ set_magento_mode ()
   fi
 }
 
+compile_sass () {
+  if [[ "$MAGENTO_MODE" == "developer" && -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
+    echo "Starting SASS backround task."
+    cd /var/www/html/vendor/snowdog/frontools
+    npx gulp watch &
+    gulp_pid="$!"
+    trap "echo 'Stopping SASS background task - pid: $gulp_pid'; kill -SIGTERM $gulp_pid" SIGINT SIGTERM
+    cd /var/www/html
+  elif [[ -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
+    echo "Compiling SASS"
+    cd /var/www/html/vendor/snowdog/frontools
+    npx gulp styles &
+    cd /var/www/html/
+  fi
+}
+
 echo "========Magento Settings========"
 echo "Magento Mode: $MAGENTO_MODE"
 echo "Magento Host: $MAGENTO_HOST"
@@ -68,21 +84,7 @@ else
   echo "Magento is already installed."
 fi
 
-# Compile SASS themes.
-if [[ "$MAGENTO_MODE" == "developer" && -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
-  echo "Starting SASS backround task."
-  cd /var/www/html/vendor/snowdog/frontools
-  npx gulp watch &
-  gulp_pid="$!"
-  trap "echo 'Stopping SASS background task - pid: $gulp_pid'; kill -SIGTERM $gulp_pid" SIGINT SIGTERM
-  cd /var/www/html
-elif [[ -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
-  echo "Compiling SASS"
-  cd /var/www/html/vendor/snowdog/frontools
-  npx gulp styles
-  cd /var/www/html/
-fi
-
+compile_sass
 set_magento_mode
 
 # Start apache
