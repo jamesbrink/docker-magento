@@ -2,5 +2,5 @@ language: bash
 services: docker
 
 script:
-  - make all
+  - bash -c "make all"
   - docker images
