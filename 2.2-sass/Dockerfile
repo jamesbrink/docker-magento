@@ -85,14 +85,25 @@ RUN apk --no-cache --update --virtual runtime-deps add \
     && mkdir -p /magento/cgi-bin \
     && mkdir -p /magento/bin \
     && chown -R magento:magento /magento \
-    && su - magento -c "composer create-project magento/community-edition:${MAGENTO_VERSION} /magento/htdocs/" \
-    && su - magento -c "cd /magento/htdocs && composer install" \
-    && su - magento -c "cd /magento/htdocs && composer require --no-update n98/magerun2:${MAGERUN_VERSION}" \
-    && su - magento -c "cd /magento/htdocs && composer update" \
-    && su - magento -c "cd /magento/htdocs && composer clear-cache" \
+    && su magento -c "composer create-project magento/community-edition:${MAGENTO_VERSION} /magento/htdocs/" \
+    && su magento -c "cd /magento/htdocs && composer install" \
+    && su magento -c "cd /magento/htdocs && composer require --no-update n98/magerun2:${MAGERUN_VERSION}" \
+    && su magento -c "cd /magento/htdocs && composer update" \
+    && su magento -c "cd /magento/htdocs && composer clear-cache" \
     && apk del build-deps \
     && chown -R magento:magento /run/apache2 \
-    && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini
+    && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini \
+    && if [ "$SASS_ENABLED" = "true" ]; then \
+          apk --no-cache add nodejs \
+          && cd /magento/htdocs \
+          && su magento -c "composer require snowdog/theme-blank-sass" \
+          && su magento -c "composer require snowdog/frontools" \
+          && su magento -c "composer clear-cache" \
+          && cd vendor/snowdog/frontools \
+          && su magento -c "npm install" \
+          && su magento -c "npm cache clean --force" \
+          && su magento -c "npx gulp setup"; \
+       fi
 
 # Set all environment variables.
 ENV APACHE_HTTPS_PORT_NUMBER="443" \
@@ -116,11 +127,6 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     ENABLE_SAMPLE_DATA="false" \
     PATH="/magento/htdocs/bin:/magento/htdocs/vendor/bin/:/magento/htdocs/vendor/n98/magerun2/bin:$PATH"
 
-# RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
-#     && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-#     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
-#
-# ENV XDEBUG_CONFIG="remote_host=192.168.1.2"
 
 # Copy assets into the container.
 COPY ./docker-assets/ /

@@ -35,6 +35,12 @@ set_magento_mode ()
   fi
 }
 
+enabled_xdebug () {
+  echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini
+  echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
+  echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
+}
+
 compile_sass () {
   if [[ "$MAGENTO_MODE" == "developer" && -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
     echo "Starting SASS backround task."
