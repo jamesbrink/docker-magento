@@ -1,22 +1,22 @@
 # Magento
 #
-# VERSION %s
+# VERSION 2.2
 
-FROM jamesbrink/php:%s
+FROM jamesbrink/php:7.1
 
 # Build ARGs.
 ARG VCS_REF
 ARG BUILD_DATE
 
 # ENV Variables set at build time.
-ENV MAGENTO_VERSION=%s \
+ENV MAGENTO_VERSION=2.2.3 \
     MAGERUN_VERSION=2.1.0 \
-    SASS_ENABLED=%s
+    SASS_ENABLED=false
 
 #Labels
 LABEL maintainer="James Brink, brink.james@gmail.com" \
       decription="Magento 2" \
-      version="%s" \
+      version="2.2.3" \
       org.label-schema.name="magento" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF \
@@ -92,7 +92,7 @@ RUN apk --no-cache --update --virtual runtime-deps add \
     && su - magento -c "cd /magento/htdocs && composer clear-cache" \
     && apk del build-deps \
     && chown -R magento:magento /run/apache2 \
-    && echo -e "date.timezone=America/Chicago\\nmemory_limit=2G\\nasp_tags=off\\n" > /usr/local/etc/php/php.ini
+    && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini
 
 # Set all environment variables.
 ENV APACHE_HTTPS_PORT_NUMBER="443" \

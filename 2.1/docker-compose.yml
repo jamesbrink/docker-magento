@@ -7,13 +7,13 @@ services:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=magento
     healthcheck:
-      test: "/usr/bin/mysql --user=root --password=password --execute \\"SHOW DATABASES;\\""
+      test: "/usr/bin/mysql --user=root --password=password --execute \"SHOW DATABASES;\""
       timeout: 5s
       retries: 20
     volumes:
       - 'magento_database:/var/lib/mysql'
   magento:
-    image: 'jamesbrink/magento:%s'
+    image: 'jamesbrink/magento:2.1'
     environment:
       - MARIADB_HOST=mariadb
       - MARIADB_PORT_NUMBER=3306
