@@ -5,12 +5,14 @@
 
 Available versions:
   * `jamesbrink/mageto:latest` (346MB) - **Magento 2.2.3** ([Dockerfile][2.2/Dockerfile])
-  * `jamesbrink/mageto:2.2-sass` (346MB) - **Magento 2.2.3** SASS Enabled ([Dockerfile][2.2-sass/Dockerfile])
+  * `jamesbrink/mageto:2.2-sass` (636MB) - **Magento 2.2.3** SASS Enabled ([Dockerfile][2.2-sass/Dockerfile])
   * `jamesbrink/magento:2.1`(344MB) - **Magento 2.1.12** ([Dockerfile][2.1/Dockerfile])
   * `jamesbrink/magento:2.0` (344MB) - **Magento 2.0.18** ([Dockerfile][2.0/Dockerfile])  
 
 
 All images are built on top of the official [Alpine Linux 3.7][Alpine Linux Image] image, using a base image of [`jamesbrink/php`][jamesbrink/php].  
+
+There is a SASS enabled version of this package which is packaged with NodeJS as well as [magento2-theme-blank-sass][snowdog-theme], and [magento2-frontools][snowdog-frontools]. The SASS image is fairly large, but useful for development purposes.
 
 
 ## About
@@ -52,6 +54,8 @@ Environment Variables:
 [2.0/Dockerfile]: https://github.com/jamesbrink/docker-magento/blob/master/2.0/Dockerfile
 [jamesbrink/php]: https://github.com/jamesbrink/docker-php
 [example-compose]: https://github.com/jamesbrink/docker-magento/blob/master/2.2/docker-compose.yml
+[snowdog-theme]: https://github.com/SnowdogApps/magento2-theme-blank-sass
+[snowdog-frontools]: https://github.com/SnowdogApps/magento2-frontools
 [Magento 2]: https://github.com/magento/magento2
 [jamesbrink/php]: https://github.com/jamesbrink/docker-magento
 [apache2 manaual]: https://httpd.apache.org/docs/2.4/mod/core.html#loglevel
