@@ -94,7 +94,7 @@ RUN apk --no-cache --update --virtual runtime-deps add \
     && chown -R magento:magento /run/apache2 \
     && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini \
     && if [ "$SASS_ENABLED" = "true" ]; then \
-          apk --no-cache add nodejs \
+          apk --no-cache add nodejs libnotify \
           && cd /magento/htdocs \
           && su magento -c "composer require snowdog/theme-blank-sass" \
           && su magento -c "composer require snowdog/frontools" \
