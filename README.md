@@ -12,12 +12,12 @@ Pull requests or suggestions are always welcome.
 
 ## Available versions
 
-| Docker Image                 | Size (Uncompressed)            | Version            | Dockerfile                        |
-| ---------------------------- | ------------------------------ | ------------------ | --------------------------------- |
-| `jamesbrink/mageto:latest`   | 346 MB                         | **Magento 2.2.3**  | [Dockerfile][2.2/dockerfile]      |
-| `jamesbrink/mageto:2.2-sass` | **Magento 2.2.3** SASS Enabled | 636 MB             | [Dockerfile][2.2-sass/dockerfile] |
-| `jamesbrink/magento:2.1`     | 344 MB                         | **Magento 2.1.12** | [Dockerfile][2.1/dockerfile]      |
-| `jamesbrink/magento:2.0`     | 3444 MB                        | **Magento 2.0.18** | [Dockerfile][2.0/dockerfile]      |
+| Docker Image                 | Size (Uncompressed) | Version                        | Dockerfile                        |
+| ---------------------------- | ------------------- | ------------------------------ | --------------------------------- |
+| `jamesbrink/mageto:latest`   | 346 MB              | **Magento 2.2.3**              | [Dockerfile][2.2/dockerfile]      |
+| `jamesbrink/mageto:2.2-sass` | 636 MB              | **Magento 2.2.3** SASS Enabled | [Dockerfile][2.2-sass/dockerfile] |
+| `jamesbrink/magento:2.1`     | 344 MB              | **Magento 2.1.12**             | [Dockerfile][2.1/dockerfile]      |
+| `jamesbrink/magento:2.0`     | 3444 MB             | **Magento 2.0.18**             | [Dockerfile][2.0/dockerfile]      |
 
 All images are built on top of the official [Alpine Linux 3.7][alpine linux image] image, using a base image of [`jamesbrink/php`][jamesbrink/php].  
 
