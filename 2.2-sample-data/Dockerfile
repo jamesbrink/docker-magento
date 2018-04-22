@@ -92,6 +92,7 @@ RUN apk --no-cache --update --virtual runtime-deps add \
     && su magento -c "cd /magento/htdocs && composer clear-cache" \
     && apk del build-deps \
     && chown -R magento:magento /run/apache2 \
+    && chown -R magento:magento /etc/apache2 \
     && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini \
     && if [ "$SASS_ENABLED" = "true" ]; then \
         apk --no-cache add nodejs libnotify \
@@ -145,6 +146,7 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MARIADB_ROOT_USER="root" \
     REDIS_HOST="" \
     REDIS_PORT="6379" \
+    VARNISH_HOST="" \
     MOD_PAGESPEED_ENABLED="true" \
     ENABLE_SAMPLE_DATA="false" \
     PATH="/magento/htdocs/bin:/magento/htdocs/vendor/bin/:/magento/htdocs/vendor/n98/magerun2/bin:$PATH"

@@ -96,6 +96,13 @@ enable_redis() {
 	EOF
 }
 
+change_apache_port () {
+	new_port="$1"
+	echo "Changing Apache port to: $new_port"
+	sed -ir "s/Listen 0.0.0.0:80.*/Listen 0.0.0.0:8080/g" /etc/apache2/httpd.conf
+	sed -ir "s/<VirtualHost \\*:80>/<VirtualHost \\*:8080>/g" /etc/apache2/conf.d/magento.conf
+}
+
 echo "========Magento Settings========"
 echo "Magento Mode: $MAGENTO_MODE"
 echo "Magento Host: $MAGENTO_HOST"
@@ -106,6 +113,10 @@ echo "Magento Admin URI: $MAGENTO_ADMINURI"
 echo "Database Host: $MARIADB_HOST"
 echo "Database User: $MAGENTO_DATABASE_USER"
 echo "Database Password: $MAGENTO_DATABASE_PASSWORD"
+
+if [ "$VARNISH_HOST" != "" ];then
+	change_apache_port 8080
+fi
 
 # Start apache
 echo "Starting Apache"
