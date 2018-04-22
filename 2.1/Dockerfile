@@ -7,27 +7,27 @@ FROM jamesbrink/php:7.0
 # Build ARGs.
 ARG VCS_REF
 ARG BUILD_DATE
-
-# ENV Variables set at build time.
-ENV MAGENTO_VERSION=2.2.3 \
-    MAGERUN_VERSION=2.1.0 \
-    SASS_ENABLED=false
+ARG MAGENTO_VERSION=2.2.3
+ARG MAGERUN_VERSION=2.1.0
+ARG SASS_ENABLED=false
+ARG ENABLE_SAMPLE_DATA="false"
 
 #Labels
 LABEL maintainer="James Brink, brink.james@gmail.com" \
-      decription="Magento 2" \
-      version="2.2.3" \
-      org.label-schema.name="magento" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/jamesbrink/docker-magento" \
-      org.label-schema.schema-version="1.0.0-rc1"
+    decription="Magento 2" \
+    version="2.2.3" \
+    org.label-schema.name="magento" \
+    org.label-schema.build-date=$BUILD_DATE \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.vcs-url="https://github.com/jamesbrink/docker-magento" \
+    org.label-schema.schema-version="1.0.0-rc1"
 
 # Create our non-priviledged user that will run magento.
 RUN addgroup -S magento && adduser -S -h /magento -s /bin/sh -G magento magento
 
 # Install all build-deps and then install magento.
 RUN apk --no-cache --update --virtual runtime-deps add \
+        bash \
         freetype \
         icu-libs \
         libcap \
@@ -36,39 +36,39 @@ RUN apk --no-cache --update --virtual runtime-deps add \
         libpng \
         libxslt \
     && apk --no-cache --virtual build-deps add \
-           autoconf \
-           binutils \
-           binutils-libs \
-           dpkg \
-           dpkg-dev \
-           file \
-           freetype-dev \
-           g++ \
-           gcc \
-           gmp \
-           icu-dev \
-           isl \
-           libatomic \
-           libbz2 \
-           libc-dev \
-           libgcc \
-           libgomp \
-           libjpeg-turbo-dev \
-           libmagic \
-           libmcrypt-dev \
-           libpng-dev \
-           libstdc++ \
-           libxslt-dev \
-           m4 \
-           make \
-           mpc1 \
-           mpfr3 \
-           musl-dev \
-           pcre-dev \
-           perl \
-           pkgconf \
-           pkgconfig \
-           re2c \
+        autoconf \
+        binutils \
+        binutils-libs \
+        dpkg \
+        dpkg-dev \
+        file \
+        freetype-dev \
+        g++ \
+        gcc \
+        gmp \
+        icu-dev \
+        isl \
+        libatomic \
+        libbz2 \
+        libc-dev \
+        libgcc \
+        libgomp \
+        libjpeg-turbo-dev \
+        libmagic \
+        libmcrypt-dev \
+        libpng-dev \
+        libstdc++ \
+        libxslt-dev \
+        m4 \
+        make \
+        mpc1 \
+        mpfr3 \
+        musl-dev \
+        pcre-dev \
+        perl \
+        pkgconf \
+        pkgconfig \
+        re2c \
     && pecl install xdebug \
     && docker-php-ext-install iconv mcrypt intl xsl zip pdo_mysql soap \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
@@ -94,16 +94,35 @@ RUN apk --no-cache --update --virtual runtime-deps add \
     && chown -R magento:magento /run/apache2 \
     && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini \
     && if [ "$SASS_ENABLED" = "true" ]; then \
-          apk --no-cache add nodejs libnotify \
-          && cd /magento/htdocs \
-          && su magento -c "composer require snowdog/theme-blank-sass" \
-          && su magento -c "composer require snowdog/frontools" \
-          && su magento -c "composer clear-cache" \
-          && cd vendor/snowdog/frontools \
-          && su magento -c "npm install" \
-          && su magento -c "npm cache clean --force" \
-          && su magento -c "npx gulp setup"; \
-       fi
+        apk --no-cache add nodejs libnotify \
+        && cd /magento/htdocs \
+        && su magento -c "composer require snowdog/theme-blank-sass" \
+        && su magento -c "composer require snowdog/frontools" \
+        && su magento -c "composer clear-cache" \
+        && cd vendor/snowdog/frontools \
+        && su magento -c "npm install" \
+        && su magento -c "npm cache clean --force" \
+        && su magento -c "npx gulp setup"; \
+    fi
+
+# Switch to non-priviledged user.
+USER magento
+
+# Set our working directory.
+WORKDIR /magento/
+
+# Install sample data if needed.
+RUN if [ "${ENABLE_SAMPLE_DATA}" = "true" ]; then \
+    cd /magento/ \
+    && curl -L -O https://github.com/magento/magento2-sample-data/archive/${MAGENTO_VERSION}.tar.gz \
+    && tar xfvz ${MAGENTO_VERSION}.tar.gz \
+    && rm ${MAGENTO_VERSION}.tar.gz \
+    && mv magento2-sample-data-${MAGENTO_VERSION} sample-data \
+    && php -f /magento/sample-data/dev/tools/build-sample-data.php -- --ce-source=/magento/htdocs/; \
+    fi
+
+# Copy assets into the container.
+COPY ./docker-assets/ /
 
 # Set all environment variables.
 ENV APACHE_HTTPS_PORT_NUMBER="443" \
@@ -119,23 +138,17 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     MAGENTO_MODE="developer" \
     MAGENTO_PASSWORD="password1" \
     MAGENTO_USERNAME="admin" \
+    MAGENTO_HOME="/magento/htdocs" \
     MARIADB_HOST="mariadb" \
     MARIADB_PORT_NUMBER="3306" \
     MARIADB_ROOT_PASSWORD="password" \
     MARIADB_ROOT_USER="root" \
+    REDIS_HOST="" \
+    REDIS_PORT="6379" \
     MOD_PAGESPEED_ENABLED="true" \
     ENABLE_SAMPLE_DATA="false" \
     PATH="/magento/htdocs/bin:/magento/htdocs/vendor/bin/:/magento/htdocs/vendor/n98/magerun2/bin:$PATH"
 
-
-# Copy assets into the container.
-COPY ./docker-assets/ /
-
-# Switch to non-priviledged user.
-USER magento
-
-# Set our working directory.
-WORKDIR /magento/
 
 # Expose http and https ports.
 EXPOSE 80 443

@@ -1,21 +1,21 @@
 # Magento
 #
-# VERSION %s
+# VERSION 2.2
 
-FROM jamesbrink/php:%s
+FROM jamesbrink/php:7.1
 
 # Build ARGs.
 ARG VCS_REF
 ARG BUILD_DATE
-ARG MAGENTO_VERSION=%s
+ARG MAGENTO_VERSION=2.2.3
 ARG MAGERUN_VERSION=2.1.0
-ARG SASS_ENABLED=%s
-ARG ENABLE_SAMPLE_DATA="false"
+ARG SASS_ENABLED=false
+ARG ENABLE_SAMPLE_DATA="true"
 
 #Labels
 LABEL maintainer="James Brink, brink.james@gmail.com" \
     decription="Magento 2" \
-    version="%s" \
+    version="2.2.3" \
     org.label-schema.name="magento" \
     org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-ref=$VCS_REF \
@@ -92,7 +92,7 @@ RUN apk --no-cache --update --virtual runtime-deps add \
     && su magento -c "cd /magento/htdocs && composer clear-cache" \
     && apk del build-deps \
     && chown -R magento:magento /run/apache2 \
-    && echo -e "date.timezone=America/Chicago\\nmemory_limit=2G\\nasp_tags=off\\n" > /usr/local/etc/php/php.ini \
+    && echo -e "date.timezone=America/Chicago\nmemory_limit=2G\nasp_tags=off\n" > /usr/local/etc/php/php.ini \
     && if [ "$SASS_ENABLED" = "true" ]; then \
         apk --no-cache add nodejs libnotify \
         && cd /magento/htdocs \
