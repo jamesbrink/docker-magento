@@ -13,7 +13,7 @@ services:
     volumes:
       - 'magento_database:/var/lib/mysql'
   magento:
-    image: 'jamesbrink/magento:2.2-sample-data'
+    image: 'jamesbrink/magento:2.2-sd'
     environment:
       - MARIADB_HOST=mariadb
       - MARIADB_PORT_NUMBER=3306
