@@ -29,14 +29,19 @@ toggle_pagespeed() {
 
 set_magento_mode() {
 	if ! $(magento deploy:mode:show | grep -iq $MAGENTO_MODE); then
+		# This makes a massive difference in response times.
+		if [ "$VARNISH_HOST" != "" ]; then
+			magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2
+		fi
 		echo "Setting Magento mode: $MAGENTO_MODE"
 		magento deploy:mode:set $MAGENTO_MODE
-		
-		# This makes a massive difference in response times.
-		magento setup:di:compile
+		# magento setup:di:compile
 	else
 		echo "Magento mode already $MAGENTO_MODE."
 	fi
+	# For some reason, enabling varnish is not enough
+	# without clearing the cache it simply wont work.
+	magento cache:flush
 }
 
 enabled_xdebug() {

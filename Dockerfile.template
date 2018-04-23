@@ -151,6 +151,9 @@ ENV APACHE_HTTPS_PORT_NUMBER="443" \
     ENABLE_SAMPLE_DATA="false" \
     PATH="/magento/htdocs/bin:/magento/htdocs/vendor/bin/:/magento/htdocs/vendor/n98/magerun2/bin:$PATH"
 
+USER root
+RUN chown -R magento:magento /etc/apache2
+USER magento
 
 # Expose http and https ports.
 EXPOSE 80 443
