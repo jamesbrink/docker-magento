@@ -1,0 +1,36 @@
+version: '2.1'
+
+services:
+  mariadb:
+    image: 'mariadb:latest'
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=magento
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=password --execute \"SHOW DATABASES;\""
+      timeout: 5s
+      retries: 20
+    volumes:
+      - 'magento_database:/var/lib/mysql'
+  magento:
+    image: 'jamesbrink/magento:latest'
+    environment:
+      - MARIADB_HOST=mariadb
+      - MARIADB_PORT_NUMBER=3306
+      - MAGENTO_DATABASE_USER=root
+      - MAGENTO_DATABASE_PASSWORD=password
+      - MAGENTO_DATABASE_NAME=magento
+      - MAGENTO_ADMINURI=admin
+      - MAGENTO_HOST=localhost
+      - ENABLE_SAMPLE_DATA=true
+      - APACHE_LOG_LEVEL=warn
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+volumes:
+  magento_database:
+    driver: local

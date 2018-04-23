@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # Used for simple logging purposes.
-timestamp="date +\"%Y-%m-%d %H:%M:%S\""
-alias echo="echo \"$(eval $timestamp) -$@\""
+# timestamp="date +\"%Y-%m-%d %H:%M:%S\""
+# alias echo="echo \"$(eval $timestamp) -$@\""
 
-cd $MAGENTO_HOME
+cd "$MAGENTO_HOME" || exit
 
 install_magento() {
-	magento setup:install --base-url=http://$MAGENTO_HOST/ \
-		--db-host=$MARIADB_HOST --db-name=$MAGENTO_DATABASE_NAME \
-		--db-user=$MAGENTO_DATABASE_USER --db-password=$MAGENTO_DATABASE_PASSWORD \
-		--admin-firstname=$MAGENTO_FIRSTNAME --admin-lastname=$MAGENTO_LASTNAME \
-		--admin-email=$MAGENTO_EMAIL --admin-user=$MAGENTO_USERNAME \
-		--admin-password=$MAGENTO_PASSWORD --language=en_US \
+	magento setup:install --base-url="http://$MAGENTO_HOST/" \
+		--db-host="$MARIADB_HOST" --db-name="$MAGENTO_DATABASE_NAME" \
+		--db-user="$MAGENTO_DATABASE_USER" --db-password="$MAGENTO_DATABASE_PASSWORD" \
+		--admin-firstname="$MAGENTO_FIRSTNAME" --admin-lastname="$MAGENTO_LASTNAME" \
+		--admin-email="$MAGENTO_EMAIL" --admin-user="$MAGENTO_USERNAME" \
+		--admin-password="$MAGENTO_PASSWORD" --language=en_US \
 		--currency=USD --timezone=America/Chicago --use-rewrites=1 \
-		--backend-frontname=$MAGENTO_ADMINURI
+		--backend-frontname="$MAGENTO_ADMINURI"
 }
 
 toggle_pagespeed() {
@@ -28,7 +28,7 @@ toggle_pagespeed() {
 }
 
 set_magento_mode() {
-	if ! $(magento deploy:mode:show | grep -iq $MAGENTO_MODE); then
+	if ! magento deploy:mode:show | grep -iq "$MAGENTO_MODE"; then
 		# This makes a massive difference in response times.
 		if [ "$VARNISH_HOST" != "" ]; then
 			magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2
@@ -53,24 +53,24 @@ enabled_xdebug() {
 compile_sass() {
 	if [[ "$MAGENTO_MODE" == "developer" && -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
 		echo "Starting SASS backround task."
-		cd $MAGENTO_HOME/vendor/snowdog/frontools
+		cd "$MAGENTO_HOME/vendor/snowdog/frontools" || return
 		npx gulp watch &
 		gulp_pid="$!"
 		trap "echo 'Stopping SASS background task - pid: $gulp_pid'; kill -SIGTERM $gulp_pid" SIGINT SIGTERM
-		cd -
+		cd - || return
 	elif [[ -e /var/www/html/vendor/snowdog/frontools/package.json ]]; then
 		echo "Compiling SASS"
-		cd $MAGENTO_HOME/vendor/snowdog/frontools
+		cd "$MAGENTO_HOME/vendor/snowdog/frontools" || return
 		npx gulp styles --prod &
-		cd -
+		cd - || return
 	fi
 }
 
 enable_redis() {
-	mv $MAGENTO_HOME/app/etc/env.php $MAGENTO_HOME/app/etc/env.php.orig
+	mv "$MAGENTO_HOME/app/etc/env.php" "$MAGENTO_HOME/app/etc/env.php.orig"
 	echo "Enabling Redis Cache"
-	head -n -1 $MAGENTO_HOME/app/etc/env.php.orig > $MAGENTO_HOME/app/etc/env.php
-	cat <<-EOF >>$MAGENTO_HOME/app/etc/env.php
+	head -n -1 "$MAGENTO_HOME/app/etc/env.php.orig" > "$MAGENTO_HOME/app/etc/env.php"
+	cat <<-EOF >>"$MAGENTO_HOME/app/etc/env.php"
 		'cache' =>
 		array(
 		'frontend' =>

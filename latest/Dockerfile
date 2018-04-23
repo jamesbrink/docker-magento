@@ -1,13 +1,13 @@
 # Magento
 #
-# VERSION 2.0
+# VERSION 2.2
 
-FROM jamesbrink/php:7.0
+FROM jamesbrink/php:7.1
 
 # Build ARGs.
 ARG VCS_REF
 ARG BUILD_DATE
-ARG MAGENTO_VERSION=2.0.18
+ARG MAGENTO_VERSION=2.2.3
 ARG MAGERUN_VERSION=2.1.0
 ARG SASS_ENABLED=false
 ARG ENABLE_SAMPLE_DATA="false"
@@ -15,7 +15,7 @@ ARG ENABLE_SAMPLE_DATA="false"
 #Labels
 LABEL maintainer="James Brink, brink.james@gmail.com" \
     decription="Magento 2" \
-    version="2.0.18" \
+    version="2.2.3" \
     org.label-schema.name="magento" \
     org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-ref=$VCS_REF \
