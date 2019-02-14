@@ -1,8 +1,0 @@
-.git
-.gitignore
-Dockerfile
-hooks
-LICENSE
-README.md
-docker-compose.yml
-.travis.yml
